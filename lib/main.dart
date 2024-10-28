@@ -2,17 +2,41 @@ import 'package:flutter/material.dart';
 import 'package:flutter_blue_plus/flutter_blue_plus.dart';
 import 'package:flutter_reactive_ble/flutter_reactive_ble.dart';
 import 'package:flutter_colorpicker/flutter_colorpicker.dart';
-import 'package:permission_handler/permission_handler.dart'; // Import the permission_handler package
+import 'package:permission_handler/permission_handler.dart';
 
 void main() => runApp(MyApp());
 
-class MyApp extends StatelessWidget {
+class MyApp extends StatefulWidget {
+  @override
+  _MyAppState createState() => _MyAppState();
+}
+
+class _MyAppState extends State<MyApp> {
+  // Initial theme mode set to light
+  ThemeMode _themeMode = ThemeMode.light;
+
   @override
   Widget build(BuildContext context) {
     return MaterialApp(
       title: 'BLE RGB Controller',
-      theme: ThemeData(primarySwatch: Colors.yellow),
-      home: BleConnectScreen(),
+      theme: ThemeData(
+        primarySwatch: Colors.yellow,
+        brightness: Brightness.light, // Light theme
+      ),
+      darkTheme: ThemeData(
+        primarySwatch: Colors.yellow,
+        brightness: Brightness.dark, // Dark theme
+      ),
+      themeMode: _themeMode,
+      home: BleConnectScreen(
+        toggleTheme: () {
+          setState(() {
+            _themeMode = _themeMode == ThemeMode.light
+                ? ThemeMode.dark
+                : ThemeMode.light;
+          });
+        },
+      ),
     );
   }
 }
@@ -33,6 +57,10 @@ class Led {
 }
 
 class BleConnectScreen extends StatefulWidget {
+  final VoidCallback toggleTheme;
+
+  BleConnectScreen({required this.toggleTheme});
+
   @override
   _BleConnectScreenState createState() => _BleConnectScreenState();
 }
@@ -168,6 +196,10 @@ class _BleConnectScreenState extends State<BleConnectScreen> {
             icon: Icon(Icons.refresh),
             onPressed:
                 isScanning ? null : startScan, // Disable button while scanning
+          ),
+          IconButton(
+            icon: Icon(Icons.brightness_6),
+            onPressed: widget.toggleTheme, // Toggle theme on press
           ),
         ],
       ),
